@@ -109,7 +109,6 @@ export class Yungoos implements IManager {
 
     const model = <CustomModel>connection.model(m.name, m.schema, m.collection);
 
-    model.aggregation().collation()
 
     // add wrapper properties
     if (!model.aggregation) {
