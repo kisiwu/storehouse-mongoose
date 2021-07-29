@@ -15,24 +15,26 @@ import { CustomAggregate, WrapAggregation } from './aggregation';
 const Log = Logger.debugger('@storehouse/mongoose:manager');
 
 export interface CustomModel<T = unknown, TQueryHelpers = unknown, TMethods = unknown> extends Model<T, TQueryHelpers, TMethods> {
-  aggregation<A>(): CustomAggregate<A>;
+  aggregation<ResultElementType>(): CustomAggregate<ResultElementType>;
 }
 
 export interface ModelSettings {
   name: string, 
-  schema: Schema<unknown, Model<unknown, unknown, unknown>, undefined, unknown>, 
+  schema: Schema, 
   collection?: string
 }
 
-export interface YungoosSettings extends ManagerSettings {
-  database: string;
-  models: ModelSettings[],
-  options?: ConnectOptions
+export interface MongooseManagerSettings extends ManagerSettings {
+  config?: {
+    database: string;
+    models: ModelSettings[],
+    options?: ConnectOptions
+  }
 }
 
 export type ModelType<T = unknown> = Map<string, T>;
 
-export class Yungoos implements IManager {
+export class MongooseManager implements IManager {
   static readonly type = '@storehouse/mongoose';
 
   #uri: string;
@@ -42,13 +44,17 @@ export class Yungoos implements IManager {
 
   protected name: string;
 
-  constructor(settings: YungoosSettings) {
+  constructor(settings: MongooseManagerSettings) {
     this.name = 'Yungoos';
-    this.#uri = settings.database;
-    this.#connectionOptions = settings.options;
+    this.#uri = settings.config?.database || '';
+    this.#connectionOptions = settings.config?.options;
     this.#modelSettings = {};
+
+    if (!this.#uri) {
+      throw new TypeError('Missing database uri');
+    }
     
-    settings.models
+    settings.config?.models
       .filter((im) => im && im.name && im.schema)
       .forEach((im) => {
         this.#modelSettings[im.name] = im;
@@ -58,7 +64,7 @@ export class Yungoos implements IManager {
   }
 
   private _createConnection(): Connection {
-    Log.info('Create connection "%s"', this.name);
+    Log.info('Create connection [%s]', this.name);
     this.closeConnection();
     this.#connection = mongoose.createConnection(this.#uri, this.#connectionOptions);
 
@@ -109,16 +115,10 @@ export class Yungoos implements IManager {
 
     const model = <CustomModel>connection.model(m.name, m.schema, m.collection);
 
-
     // add wrapper properties
     if (!model.aggregation) {
       const aggregation = WrapAggregation(model);
-      Object.defineProperties(model, {
-        aggregation: {
-          enumerable: true,
-          get: () => aggregation(),
-        },
-      });
+      model.aggregation = aggregation;
     }
 
     Log('[%s] added model \'%s\'', this.name, m.name);
