@@ -30,8 +30,6 @@ describe('connect', function () {
       databaseUri += `?${params('mongodb.options')}`;
     }
 
-    logger.log(databaseUri)
-
     try {
       Storehouse.add({
         local: {
@@ -54,7 +52,6 @@ describe('connect', function () {
         }
       });
   
-      logger.silly('get model');
       const Movies: CustomModel<Movie> | undefined = Storehouse.getModel('movies');
   
       if(Movies) {
@@ -79,7 +76,7 @@ describe('connect', function () {
         await newUser.deleteOne();
       }
   
-      logger.silly('close collection');
+      logger.info('close collection');
       await Storehouse.close();
 
       logger.info('Done');
