@@ -14,7 +14,6 @@ describe('connect', function () {
   const { logger, params } = this.ctx.kaukau;
 
   it('should init and connect', async () => {
-    logger.info('start');
     // Storehouse.setManagerType(MongooseManager);
 
     let databaseUri = `${params('mongodb.protocol')}://`;
@@ -76,7 +75,7 @@ describe('connect', function () {
         await newUser.deleteOne();
       }
   
-      logger.info('close collection');
+      logger.info('close connections');
       await Storehouse.close();
 
       logger.info('Done');
