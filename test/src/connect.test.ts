@@ -17,11 +17,11 @@ describe('connect', function () {
     // Storehouse.setManagerType(MongooseManager);
 
     let databaseUri = `${params('mongodb.protocol')}://`;
-    if (params('mongodb.user') && params('mongodb.password')) {
-      databaseUri += `${params('mongodb.user')}:${params('mongodb.password')}@`;
+    if (params('mongodb.username') && params('mongodb.password')) {
+      databaseUri += `${params('mongodb.username')}:${params('mongodb.password')}@`;
     }
     databaseUri += `${params('mongodb.hostname')}`;
-    if (params('mongodb.port')) {
+    if (params('mongodb.port') && params('mongodb.port') !== '0') {
       databaseUri += `:${params('mongodb.port')}`;
     }
     databaseUri += `/${params('mongodb.database')}`;
@@ -55,7 +55,7 @@ describe('connect', function () {
   
       if(Movies) {
         const newUser = new Movies();
-        newUser.title = 'Last Knight';
+        newUser.title = `Last Knight ${Math.ceil(Math.random() * 1000) + 1}`;
         await newUser.save();
   
         const movies: Movie[] = await Movies.find({}).sort({_id: -1}).limit(1);
