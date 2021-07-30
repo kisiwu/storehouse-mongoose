@@ -1,5 +1,5 @@
 module.exports = {
-  enableLogs: false,
+  enableLogs: true,
   exitOnFail: true,
   files: 'test/src',
   ext: '.test.ts',
