@@ -1,4 +1,5 @@
-import { IManager, ManagerSettings } from '@storehouse/core/lib/manager';
+import { IManager, ManagerArg } from '@storehouse/core/lib/manager';
+import { Registry } from '@storehouse/core/lib/registry';
 import  mongoose, { 
   ConnectOptions, 
   Document,
@@ -24,15 +25,47 @@ export interface ModelSettings {
   collection?: string
 }
 
-export interface MongooseManagerSettings extends ManagerSettings {
+export interface MongooseManagerArg extends ManagerArg {
   config?: {
     database: string;
     models: ModelSettings[],
     options?: ConnectOptions
-  }
+  },
 }
 
-export type ModelType<T = unknown> = Map<string, T>;
+/**
+ * 
+ * @param registry 
+ * @param manager Manager name or model name
+ * @param modelName Model name
+ * @returns 
+ */
+export function getModel<T extends Document = Document, TQueryHelpers = unknown, TMethods = unknown>(registry: Registry, managerName: string, modelName?: string): CustomModel<T,TQueryHelpers,TMethods> {
+  const model = registry.getModel<CustomModel<T,TQueryHelpers,TMethods>>(managerName, modelName);
+  if (!model) {
+    throw new ReferenceError(`Could not find model "${modelName || managerName}"`);
+  }
+  return model;
+}
+
+export function getManager<M extends MongooseManager = MongooseManager>(registry: Registry, managerName?: string): M {
+  const manager = registry.getManager<M>(managerName);
+  if (!manager) {
+    throw new ReferenceError(`Could not find manager "${managerName || registry.defaultManager}"`);
+  }
+  if (!(manager instanceof MongooseManager)) {
+    throw new TypeError(`Manager "${managerName || registry.defaultManager}" is not instance of MongooseManager`);
+  }
+  return manager;
+}
+
+export function getConnection<T extends Connection = Connection>(registry: Registry, managerName?: string): T {
+  const conn = registry.getConnection<T>(managerName);
+  if (!conn) {
+    throw new ReferenceError(`Could not find connection "${managerName || registry.defaultManager}"`);
+  }
+  return conn;
+}
 
 export class MongooseManager implements IManager {
   static readonly type = '@storehouse/mongoose';
@@ -44,8 +77,8 @@ export class MongooseManager implements IManager {
 
   protected name: string;
 
-  constructor(settings: MongooseManagerSettings) {
-    this.name = 'Yungoos';
+  constructor(settings: MongooseManagerArg) {
+    this.name = settings.name || `Yungoos ${Date.now()}_${Math.ceil(Math.random() * 10000) + 10}`;
     this.#uri = settings.config?.database || '';
     this.#connectionOptions = settings.config?.options;
     this.#modelSettings = {};
@@ -146,9 +179,9 @@ export class MongooseManager implements IManager {
     this.#connection = undefined;
   }
 
-  getModel<U extends Model<Document>>(name: string): U {
+  getModel<M extends Model<Document> = CustomModel<Document>>(name: string): M {
     const c = this.getConnection();
-    return c.model<Document, U>(name);
+    return c.model<Document, M>(name);
   }
 
   toObjectId(value?: string | number | undefined): MongooseTypes.ObjectId | undefined {

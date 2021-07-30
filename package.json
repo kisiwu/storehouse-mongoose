@@ -11,8 +11,8 @@
     "doc": "typedoc",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\", \"noUnusedParameters\": false}' kaukau --require ts-node/register --config kaukau-config-src.js",
-    "testlib": "kaukau --config kaukau-config-lib.js"
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\", \"noUnusedParameters\": false}' kaukau --require ts-node/register --config kaukau-src.js",
+    "testlib": "kaukau --config kaukau-lib.js"
   },
   "repository": {
     "type": "git",
@@ -29,8 +29,8 @@
   },
   "homepage": "https://github.com/kisiwu/storehouse-mongoose#readme",
   "dependencies": {
-    "@novice1/logger": "^1.3.0",
-    "@storehouse/core": "^1.0.3",
+    "@novice1/logger": "^1.3.1",
+    "@storehouse/core": "^1.0.5",
     "mongoose": "^5.13.3",
     "tslib": "^2.3.0"
   },

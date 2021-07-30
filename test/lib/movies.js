@@ -1,15 +1,6 @@
-import { Document, Schema } from 'mongoose';
-import { ModelSettings } from '../../src/index';
+const { Schema } = require('mongoose');
 
-export interface MovieJson {
-  title: string;
-  rate?: number;
-}
-
-export interface Movie extends Document, MovieJson {
-}
-
-export const MovieSettings: ModelSettings = {
+module.exports = {
     name: 'movies',
     schema: new Schema({
       title: {
