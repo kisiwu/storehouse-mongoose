@@ -14,6 +14,7 @@ describe('connect', function () {
   const { logger, params } = this.ctx.kaukau;
 
   it('should init and connect', async () => {
+    logger.info('start');
     // Storehouse.setManagerType(MongooseManager);
 
     let databaseUri = `${params('mongodb.protocol')}://`;
@@ -28,6 +29,8 @@ describe('connect', function () {
     if (params('mongodb.options')) {
       databaseUri += `?${params('mongodb.options')}`;
     }
+
+    logger.log(databaseUri)
 
     try {
       Storehouse.add({
@@ -51,6 +54,7 @@ describe('connect', function () {
         }
       });
   
+      logger.silly('get model');
       const Movies: CustomModel<Movie> | undefined = Storehouse.getModel('movies');
   
       if(Movies) {
@@ -75,9 +79,10 @@ describe('connect', function () {
         await newUser.deleteOne();
       }
   
+      logger.silly('close collection');
       await Storehouse.close();
 
-      logger.log('Done');
+      logger.info('Done');
     } catch(e) {
       await Storehouse.close();
       throw e;
