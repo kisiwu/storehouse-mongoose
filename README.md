@@ -1,5 +1,7 @@
 # storehouse-mongoose
 
+[Documentation](https://novice1.000webhostapp.com/storehouse/mongoose/).
+
 ## Installation
 
 Make sure you have [@storehouse/core](https://www.npmjs.com/package/@storehouse/core) and [mongoose](https://www.npmjs.com/package/mongoose) installed.
@@ -144,3 +146,9 @@ import { Movie, MovieJson } from './movies';
 const Movies = getModel<Movie>(Storehouse, 'local', 'movies');
 const movies = await Movies.aggregation<MovieJson>().match({});
 ```
+
+## References
+
+- [Documentation](https://novice1.000webhostapp.com/storehouse/mongoose/)
+- [@storehouse/core](https://www.npmjs.com/package/@storehouse/core)
+- [mongoose](https://mongoosejs.com/)

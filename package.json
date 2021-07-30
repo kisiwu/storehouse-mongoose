@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/kisiwu/storehouse-mongoose/issues"
   },
-  "homepage": "https://github.com/kisiwu/storehouse-mongoose#readme",
+  "homepage": "https://novice1.000webhostapp.com/storehouse/mongoose/",
   "dependencies": {
     "@novice1/logger": "^1.3.1",
     "@storehouse/core": "^1.0.5",
