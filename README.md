@@ -1,4 +1,4 @@
-# storehouse-mongoose
+# @storehouse/mongoose
 
 [Documentation](https://novice1.000webhostapp.com/storehouse/mongoose/).
 
