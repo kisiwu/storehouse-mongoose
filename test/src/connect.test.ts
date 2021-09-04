@@ -33,11 +33,7 @@ describe('connect', function () {
             database: databaseUri,
             options: {
               keepAlive: true,
-              poolSize: 24,
-              useCreateIndex: true,
-              useNewUrlParser: true,
-              useUnifiedTopology: true,
-              useFindAndModify: false,
+              maxPoolSize: 24,
               promiseLibrary: Promise
             },
             models: [
