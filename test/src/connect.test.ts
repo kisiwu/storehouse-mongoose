@@ -44,7 +44,7 @@ describe('connect', function () {
       });
 
       const connection = await getConnection(Storehouse, 'local').asPromise();//await Storehouse.getConnection<Connection>();
-      logger.info('retrieved connection for database', connection.db.databaseName);
+      logger.log('retrieved connection for database', connection.name);
 
       const manager = getManager(Storehouse/*, 'local'*/); // Storehouse.getManager<MongooseManager>();
       //if(manager) {
@@ -60,7 +60,7 @@ describe('connect', function () {
         const newUser = new Movies();
         newUser.title = `Last Knight ${Math.ceil(Math.random() * 1000) + 1}`;
         await newUser.save();
-        logger.info('added new movie');
+        logger.log('added new movie');
   
         const movies: Movie[] = await Movies.find({}).sort({_id: -1}).limit(1);
         if (movies.length) {
