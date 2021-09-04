@@ -34,8 +34,7 @@ describe('connect', function () {
             database: databaseUri,
             options: {
               keepAlive: true,
-              maxPoolSize: 24,
-              promiseLibrary: Promise
+              maxPoolSize: 24
             },
             models: [
               MovieSettings

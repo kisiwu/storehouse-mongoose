@@ -63,12 +63,7 @@ Storehouse.add({
       // ConnectOptions
       options: {
         keepAlive: true,
-        poolSize: 24,
-        useCreateIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
-        promiseLibrary: Promise
+        maxPoolSize: 24
       },
       
       // ModelSettings[]
@@ -89,7 +84,7 @@ import { Connection } from 'mongoose';
 import { Movie } from './movies';
 
 // connection
-const conn = await Storehouse.getConnection<Connection>();
+const conn = await Storehouse.getConnection<Connection>().asPromise();
 if (conn) {
   console.log('retrieved connection for database', conn.name);
 }
@@ -122,7 +117,7 @@ import { CustomModel, getConnection, getManager, getModel } from '@storehouse/mo
 import { Movie } from './movies';
 
 // connection
-const conn = await getConnection(Storehouse, 'local');
+const conn = await getConnection(Storehouse, 'local').asPromise();
 console.log('retrieved connection for database', conn.name);
 
 // manager

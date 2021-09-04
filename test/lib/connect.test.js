@@ -33,12 +33,7 @@ describe('connect', function () {
             database: databaseUri,
             options: {
               keepAlive: true,
-              poolSize: 24,
-              useCreateIndex: true,
-              useNewUrlParser: true,
-              useUnifiedTopology: true,
-              useFindAndModify: false,
-              promiseLibrary: Promise
+              maxPoolSize: 24
             },
             models: [
               movieSettings
@@ -47,7 +42,7 @@ describe('connect', function () {
         }
       });
 
-      const connection = await Storehouse.getConnection();
+      const connection = await Storehouse.getConnection().asPromise();
       logger.info('retrieved connection for database', connection.name);
 
       const manager = Storehouse.getManager();
