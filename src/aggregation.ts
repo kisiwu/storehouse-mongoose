@@ -37,7 +37,7 @@ function execWithDefaultCursor<T = unknown>(
 
   return new PromiseClass(async function (resolve: (value: unknown) => void, reject: (reason?: unknown) => void) {
     try {
-      const cursor = aggregate.cursor(cursorOptions).exec();
+      const cursor = aggregate.cursor(cursorOptions);
       let doc: T;
       while ((doc = await cursor.next())) {
         data.push(doc);
@@ -68,7 +68,7 @@ function countDocuments(
 
   return new PromiseClass(async function (resolve: (value: unknown) => void, reject: (reason?: unknown) => void) {
     try {
-      const cursor = aggregate.count('count').cursor({}).exec();
+      const cursor = aggregate.count('count').cursor({});
       let doc: {count: number};
       let count = 0;
       while ((doc = await cursor.next())) {
