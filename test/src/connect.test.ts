@@ -43,7 +43,7 @@ describe('connect', function () {
         }
       });
 
-      const connection = await getConnection(Storehouse, 'local');//await Storehouse.getConnection<Connection>();
+      const connection = await getConnection(Storehouse, 'local').asPromise();//await Storehouse.getConnection<Connection>();
       logger.info('retrieved connection for database', connection.name);
 
       const manager = getManager(Storehouse/*, 'local'*/); // Storehouse.getManager<MongooseManager>();

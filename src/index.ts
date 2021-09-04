@@ -100,7 +100,6 @@ export class MongooseManager implements IManager {
     Log.info('Create connection [%s]', this.name);
     this.closeConnection();
     this.#connection = mongoose.createConnection(this.#uri, this.#connectOptions);
-
     this._registerConnectionEvents(this.#connection);
 
     for (const key in this.#modelSettings) {
@@ -157,6 +156,10 @@ export class MongooseManager implements IManager {
     Log('[%s] added model \'%s\'', this.name, m.name);
 
     return model;
+  }
+
+  connect(): Promise<Connection> {
+    return this.getConnection().asPromise();
   }
 
   getConnection(): Connection {
