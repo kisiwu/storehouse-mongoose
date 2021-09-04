@@ -4,11 +4,11 @@ import  mongoose, {
   ConnectOptions, 
   Document,
   Model, 
-  Connection, 
-  ConnectionOptions,
+  Connection,
   Schema,
   Types as MongooseTypes
 } from 'mongoose';
+import { ObjectIdLike } from 'bson';
 import Logger from '@novice1/logger';
 
 import { CustomAggregate, WrapAggregation } from './aggregation';
@@ -72,7 +72,7 @@ export class MongooseManager implements IManager {
 
   #uri: string;
   #connection?: Connection;
-  #connectionOptions?: ConnectionOptions;
+  #connectOptions?: ConnectOptions;
   #modelSettings: Record<string, ModelSettings>;
 
   protected name: string;
@@ -80,7 +80,7 @@ export class MongooseManager implements IManager {
   constructor(settings: MongooseManagerArg) {
     this.name = settings.name || `Yungoos ${Date.now()}_${Math.ceil(Math.random() * 10000) + 10}`;
     this.#uri = settings.config?.database || '';
-    this.#connectionOptions = settings.config?.options;
+    this.#connectOptions = settings.config?.options;
     this.#modelSettings = {};
 
     if (!this.#uri) {
@@ -99,7 +99,7 @@ export class MongooseManager implements IManager {
   private _createConnection(): Connection {
     Log.info('Create connection [%s]', this.name);
     this.closeConnection();
-    this.#connection = mongoose.createConnection(this.#uri, this.#connectionOptions);
+    this.#connection = mongoose.createConnection(this.#uri, this.#connectOptions);
 
     this._registerConnectionEvents(this.#connection);
 
@@ -184,10 +184,10 @@ export class MongooseManager implements IManager {
     return c.model<Document, M>(name);
   }
 
-  toObjectId(value?: string | number | undefined): MongooseTypes.ObjectId | undefined {
+  toObjectId(value?: string | number | MongooseTypes.ObjectId | Buffer | ObjectIdLike | undefined): MongooseTypes.ObjectId | undefined {
     let r: MongooseTypes.ObjectId | undefined;
     try {
-      r = MongooseTypes.ObjectId(value);
+      r = new MongooseTypes.ObjectId(value);
     } catch (e) {
       Log.warn(e);
     }
