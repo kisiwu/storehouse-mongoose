@@ -1,6 +1,7 @@
 //import { Debug } from '@novice1/logger';
 import Storehouse from '@storehouse/core';
 import { MongooseManager, getModel, getManager, getConnection } from '../../src/index';
+import {expect} from 'chai';
 
 //Debug.enable('@storehouse/mongoose*');
 
@@ -45,15 +46,15 @@ describe('connect', function () {
 
       const connection = await getConnection(Storehouse, 'local').asPromise();//await Storehouse.getConnection<Connection>();
       logger.log('retrieved connection for database', connection.name);
-      console.log(connection.name);
+      expect(connection.name).to.be.a('string');
 
       const manager = getManager(Storehouse/*, 'local'*/); // Storehouse.getManager<MongooseManager>();
       //if(manager) {
         const MoviesModel = manager.getModel('movies');
         if (MoviesModel) {
-          const nbMovies = await MoviesModel.countDocuments();
-          logger.log('nb movies', nbMovies);
-          console.log(nbMovies);
+          const nb = await MoviesModel.countDocuments();
+          logger.log('nb movies', nb);
+          expect(nb).to.be.a('number');
         }
       //}
 
