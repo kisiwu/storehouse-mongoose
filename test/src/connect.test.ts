@@ -45,12 +45,15 @@ describe('connect', function () {
 
       const connection = await getConnection(Storehouse, 'local').asPromise();//await Storehouse.getConnection<Connection>();
       logger.log('retrieved connection for database', connection.name);
+      console.log(connection.name);
 
       const manager = getManager(Storehouse/*, 'local'*/); // Storehouse.getManager<MongooseManager>();
       //if(manager) {
         const MoviesModel = manager.getModel('movies');
         if (MoviesModel) {
-          logger.log('nb movies', await MoviesModel.countDocuments());
+          const nbMovies = await MoviesModel.countDocuments();
+          logger.log('nb movies', nbMovies);
+          console.log(nbMovies);
         }
       //}
 
