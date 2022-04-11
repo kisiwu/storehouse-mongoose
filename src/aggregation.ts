@@ -89,6 +89,7 @@ export function WrapAggregation(model: Model<unknown, unknown>) {
     const chain: ChainObject[] = [];
 
     const aggregation = {
+      [Symbol.asyncIterator]: wrap('Symbol.asyncIterator'),
       addCursorFlag: wrap('addCursorFlag'), // => aggregate
       addFields: wrap('addFields'), // => aggregate
       allowDiskUse: wrap('allowDiskUse'), // => aggregate
@@ -123,6 +124,7 @@ export function WrapAggregation(model: Model<unknown, unknown>) {
       sort: wrap('sort'), // => aggregate
       sortByCount: wrap('sortByCount'), // => aggregate
       then: wrap('then'), // => Promise<T[]>
+      unionWith: wrap('unionWith'), // => aggregate
       unwind: wrap('unwind') // => aggregate
     };
 
