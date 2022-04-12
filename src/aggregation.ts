@@ -82,7 +82,11 @@ function countDocuments(
   });
 }
 
-
+/**
+ * @internal
+ * @param model 
+ * @returns 
+ */
 export function WrapAggregation(model: Model<unknown, unknown>) {
   return function start<T = unknown>(): CustomAggregate<T> {
     let aggregate = <OverwrittenAggregate>model.aggregate();

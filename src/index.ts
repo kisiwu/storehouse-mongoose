@@ -12,6 +12,7 @@ import { ObjectIdLike } from 'bson';
 import Logger from '@novice1/logger';
 
 import { CustomAggregate, WrapAggregation } from './aggregation';
+export * from './aggregation';
 
 const Log = Logger.debugger('@storehouse/mongoose:manager');
 
@@ -191,7 +192,7 @@ export class MongooseManager implements IManager {
     let r: MongooseTypes.ObjectId | undefined;
     try {
       // @ts-ignore: Unreachable code error
-      r = MongooseTypes.ObjectId(value);
+      r = mongoose.Types.ObjectId(value);
     } catch (e) {
       Log.warn(e);
     }

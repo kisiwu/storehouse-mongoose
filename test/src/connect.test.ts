@@ -48,6 +48,8 @@ describe('connect', function () {
       expect(connection.name).to.be.a('string');
 
       const manager = getManager(Storehouse/*, 'local'*/); // Storehouse.getManager<MongooseManager>();
+      const id = manager.toObjectId("62532bce61cb4f39c9c4f1ae");
+      logger.log('id=', id)
       //if(manager) {
         const MoviesModel = manager.getModel('movies');
         if (MoviesModel) {
