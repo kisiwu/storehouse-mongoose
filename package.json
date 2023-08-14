@@ -1,7 +1,7 @@
 {
   "name": "@storehouse/mongoose",
   "private": false,
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Mongoose manager for @storehouse/core",
   "main": "lib/index.js",
   "directories": {
@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/kisiwu/storehouse-mongoose/issues"
   },
-  "homepage": "https://novice1.000webhostapp.com/storehouse/mongoose/",
+  "homepage": "https://kisiwu.github.io/storehouse/mongoose/latest/",
   "dependencies": {
     "@novice1/logger": "^1.3.3",
     "@storehouse/core": "^1.1.0",

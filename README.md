@@ -1,6 +1,6 @@
 # @storehouse/mongoose
 
-[Documentation](https://novice1.000webhostapp.com/storehouse/mongoose/).
+[Documentation](https://kisiwu.github.io/storehouse/mongoose/latest/).
 
 ## Installation
 
@@ -144,6 +144,6 @@ const movies = await Movies.aggregation<MovieJson>().match({});
 
 ## References
 
-- [Documentation](https://novice1.000webhostapp.com/storehouse/mongoose/)
+- [Documentation](https://kisiwu.github.io/storehouse/mongoose/latest/)
 - [@storehouse/core](https://www.npmjs.com/package/@storehouse/core)
 - [mongoose](https://mongoosejs.com/)
