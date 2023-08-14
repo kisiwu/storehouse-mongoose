@@ -191,8 +191,7 @@ export class MongooseManager implements IManager {
   toObjectId(value?: string | number | MongooseTypes.ObjectId | Buffer | ObjectIdLike | undefined): MongooseTypes.ObjectId | undefined {
     let r: MongooseTypes.ObjectId | undefined;
     try {
-      // @ts-ignore: Unreachable code error
-      r = mongoose.Types.ObjectId(value);
+      r = new mongoose.Types.ObjectId(value);
     } catch (e) {
       Log.warn(e);
     }

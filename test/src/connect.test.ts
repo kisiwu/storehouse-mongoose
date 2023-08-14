@@ -33,7 +33,6 @@ describe('connect', function () {
           config: {
             database: databaseUri,
             options: {
-              keepAlive: true,
               maxPoolSize: 24
             },
             models: [
@@ -73,13 +72,14 @@ describe('connect', function () {
           logger.log('new movie title:', doc.title);
         }
   
-        /*
-        const movies = await Movies.aggregation<Movie>().match({});
-        if (movies.length) {
-          const doc = movies[0];
+
+        const moviesFromAggr = await Movies.aggregation<Movie>()
+          .option({maxTimeMS: 2000})
+          .match({});
+        if (moviesFromAggr.length) {
+          const doc = moviesFromAggr[0];
           logger.log('movie title:', doc.title);
         }
-        */
   
         await newUser.deleteOne();
         logger.info('deleted movie');

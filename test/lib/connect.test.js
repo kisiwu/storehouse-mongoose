@@ -32,7 +32,6 @@ describe('connect', function () {
           config: {
             database: databaseUri,
             options: {
-              keepAlive: true,
               maxPoolSize: 24
             },
             models: [

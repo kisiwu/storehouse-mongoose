@@ -25,8 +25,7 @@ interface ChainObject {
   args: unknown[];
 }
 
-type CursorOptions = {
-};
+type CursorOptions = NonNullable<unknown>;
 
 function execWithDefaultCursor<T = unknown>(
   aggregate: OverwrittenAggregate, 
@@ -94,6 +93,7 @@ export function WrapAggregation(model: Model<unknown, unknown>) {
 
     const aggregation = {
       [Symbol.asyncIterator]: wrap('Symbol.asyncIterator'),
+      [Symbol.toStringTag]: 'CustomAggregate',
       addCursorFlag: wrap('addCursorFlag'), // => aggregate
       addFields: wrap('addFields'), // => aggregate
       allowDiskUse: wrap('allowDiskUse'), // => aggregate
@@ -103,9 +103,12 @@ export function WrapAggregation(model: Model<unknown, unknown>) {
       count: wrap('count'), // => aggregate
       countDocuments: wrap('countDocuments'), // => Promise<number>
       cursor: wrap('cursor'), // => aggregate
+      densify: wrap('densify'), // => aggregate
       exec: wrap('exec'), // => unknown
       explain: wrap('explain'), // => Promise<unknown>
       facet: wrap('facet'), // => aggregate
+      fill: wrap('fill'), // => aggregate
+      finally: wrap('finally'), // => Promise<unknown>
       graphLookup: wrap('graphLookup'), // => aggregate
       group: wrap('group'), // => aggregate
       hint: wrap('hint'), // => aggregate
@@ -115,6 +118,9 @@ export function WrapAggregation(model: Model<unknown, unknown>) {
       model: wrap('model'), // => aggregate | Model<T>
       near: wrap('near'), //$geoNear, // => aggregate
       option: wrap('option'), // => aggregate
+      get options() {
+        return wrap('options')();
+      }, // => property
       pipeline: wrap('pipeline'), // => unknown[]
       project: wrap('project'), // => aggregate
       read: wrap('read'), // => aggregate
@@ -142,7 +148,12 @@ export function WrapAggregation(model: Model<unknown, unknown>) {
 
     function wrap(verb: string) {
       return function (...args: unknown[]) {
-        if (['cursor', 'explain', 'pipeline'].indexOf(verb) > -1) {
+        // properties
+        if (['options'].indexOf(verb) > -1) {
+          return (<OverwrittenAggregateFunction>aggregate[verb]);
+        }
+
+        if (['Symbol.asyncIterator', 'cursor', 'explain', 'pipeline'].indexOf(verb) > -1) {
           return (<OverwrittenAggregateFunction>aggregate[verb])(...args);
         }
 
@@ -170,10 +181,12 @@ export function WrapAggregation(model: Model<unknown, unknown>) {
         }
 
         // add default 'cursor' and 'exec' if needed
-        if (['catch', 'then'].indexOf(verb) > -1) {
+        if (['catch', 'finally', 'then'].indexOf(verb) > -1) {
           const promise = execWithDefaultCursor(aggregate);
           if(verb == 'then') {
             promise.then(...args);
+          } else if(verb == 'finally') {
+            promise.finally(...args);
           } else {
             promise.catch(...args);
           }
