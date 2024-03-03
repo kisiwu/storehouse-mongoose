@@ -93,7 +93,7 @@ if (conn) {
 const localManager = Storehouse.getManager<MongooseManager>('local');
 if (localManager) {
   // model
-  const moviesModel = manager.getModel<CustomModel<Movie>>('movies');
+  const moviesModel = localManager.getModel<CustomModel<Movie>>('movies');
   if (moviesModel) {
     console.log('nb movies', await moviesModel.countDocuments());
   }
