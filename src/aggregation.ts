@@ -3,7 +3,8 @@
 import  mongoose, { 
   Aggregate,
   Document,
-  Model
+  Model,
+  HydratedDocument
 } from 'mongoose';
 
 interface OverwrittenAggregate<A = unknown> extends Omit<Aggregate<A[]>, 'model'> {
@@ -86,8 +87,16 @@ function countDocuments(
  * @param model 
  * @returns 
  */
-export function WrapAggregation(model: Model<unknown, unknown>) {
-  return function start<T = unknown>(): CustomAggregate<T> {
+export function WrapAggregation<
+T extends Document = Document,
+TQueryHelpers = unknown, 
+TMethods = unknown,
+TVirtuals = unknown,
+THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+TSchema = any
+>(model: Model<T, TQueryHelpers, TMethods, TVirtuals, THydratedDocumentType, TSchema>) {
+  return function start<TModel = T>(): CustomAggregate<TModel> {
     let aggregate = <OverwrittenAggregate>model.aggregate();
     const chain: ChainObject[] = [];
 

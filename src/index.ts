@@ -6,7 +6,8 @@ import  mongoose, {
   Model, 
   Connection,
   Schema,
-  Types as MongooseTypes
+  Types as MongooseTypes,
+  HydratedDocument
 } from 'mongoose';
 import { ObjectIdLike } from 'bson';
 import Logger from '@novice1/logger';
@@ -15,8 +16,23 @@ import { CustomAggregate, WrapAggregation } from './aggregation';
 export * from './aggregation';
 
 const Log = Logger.debugger('@storehouse/mongoose:manager');
-
-export interface CustomModel<T = unknown, TQueryHelpers = unknown, TMethods = unknown> extends Model<T, TQueryHelpers, TMethods> {
+//type THydratedDocumentTypre = IfAny<TRawDocType, any, TVirtuals & TInstanceMethods extends Record<string, never> ? Document<unknown, TQueryHelpers, TRawDocType> & Require_id<...> : IfAny<...>>, TSchema = any>
+export interface CustomModel<
+  TRawDocType = unknown, 
+  TQueryHelpers = unknown, 
+  TInstanceMethods = unknown,
+  TVirtuals = unknown,
+  THydratedDocumentType = HydratedDocument<TRawDocType, TVirtuals & TInstanceMethods, TQueryHelpers>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TSchema = any
+> extends Model<
+  TRawDocType, 
+  TQueryHelpers, 
+  TInstanceMethods,
+  TVirtuals,
+  THydratedDocumentType,
+  TSchema
+  > {
   aggregation<ResultElementType>(): CustomAggregate<ResultElementType>;
 }
 
@@ -41,8 +57,16 @@ export interface MongooseManagerArg extends ManagerArg {
  * @param modelName Model name
  * @returns 
  */
-export function getModel<T extends Document = Document, TQueryHelpers = unknown, TMethods = unknown>(registry: Registry, managerName: string, modelName?: string): CustomModel<T,TQueryHelpers,TMethods> {
-  const model = registry.getModel<CustomModel<T,TQueryHelpers,TMethods>>(managerName, modelName);
+export function getModel<
+T extends Document = Document, 
+TQueryHelpers = unknown, 
+TMethods = unknown, 
+TVirtuals = unknown, 
+THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+TSchema = any>
+(registry: Registry, managerName: string, modelName?: string): CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema> {
+  const model = registry.getModel<CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema>>(managerName, modelName);
   if (!model) {
     throw new ReferenceError(`Could not find model "${modelName || managerName}"`);
   }
@@ -145,18 +169,7 @@ export class MongooseManager implements IManager {
 
   private _addModel(m: ModelSettings) {
     const connection = this.getConnection();
-
-    const model = <CustomModel>connection.model(m.name, m.schema, m.collection);
-
-    // add wrapper properties
-    if (!model.aggregation) {
-      const aggregation = WrapAggregation(model);
-      model.aggregation = aggregation;
-    }
-
-    Log('[%s] added model \'%s\'', this.name, m.name);
-
-    return model;
+    connection.model(m.name, m.schema, m.collection);
   }
 
   connect(): Promise<Connection> {
@@ -183,9 +196,43 @@ export class MongooseManager implements IManager {
     this.#connection = undefined;
   }
 
-  getModel<M extends Model<Document> = CustomModel<Document>>(name: string): M {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  getModelDeprecated<M extends CustomModel<Document> = CustomModel<Document>, TQueryHelpers = {}>(name: string): M {
     const c = this.getConnection();
-    return c.model<Document, M>(name);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const model = ( c.model<Document, M, TQueryHelpers>(name)) as any
+    // add wrapper properties
+    if (!model.aggregation) {
+      const aggregation = WrapAggregation(model);
+      model.aggregation = aggregation;
+      console.log('set aggregation to', model.aggregation)
+    } else {
+      console.log('aggregation is', model.aggregation)
+    }
+    return model;
+  }
+
+
+  getModel<
+  T extends Document = Document,
+  TQueryHelpers = unknown, 
+  TMethods = unknown,
+  TVirtuals = unknown,
+  THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TSchema = any
+  >(name: string): CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema> {
+    const c = this.getConnection();
+    const model = ( c.model<T, CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema>, TQueryHelpers>(name))
+    // add wrapper properties
+    if (!model.aggregation) {
+      const aggregation = WrapAggregation(model);
+      model.aggregation = aggregation;
+      console.log('set aggregation to', model.aggregation)
+    } else {
+      console.log('aggregation is', model.aggregation)
+    }
+    return model;
   }
 
   toObjectId(value?: string | number | MongooseTypes.ObjectId | Buffer | ObjectIdLike | undefined): MongooseTypes.ObjectId | undefined {

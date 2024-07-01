@@ -47,7 +47,7 @@ describe('connect', function () {
       expect(connection.name).to.be.a('string');
 
       const manager = getManager(Storehouse/*, 'local'*/); // Storehouse.getManager<MongooseManager>();
-      const id = manager.toObjectId("62532bce61cb4f39c9c4f1ae");
+      const id = manager.toObjectId('62532bce61cb4f39c9c4f1ae');
       logger.log('id=', id)
       //if(manager) {
         const MoviesModel = manager.getModel('movies');
@@ -71,6 +71,12 @@ describe('connect', function () {
           const doc = movies[0];
           logger.log('new movie title:', doc.title);
         }
+
+        const movAggr = await Movies.aggregate<Movie>().option({maxTimeMS: 2000}).match({})
+        if (movAggr.length) {
+          const doc = movAggr[0];
+          logger.log('movie title (aggregate):', doc.title);
+        }
   
 
         const moviesFromAggr = await Movies.aggregation<Movie>()
@@ -78,7 +84,7 @@ describe('connect', function () {
           .match({});
         if (moviesFromAggr.length) {
           const doc = moviesFromAggr[0];
-          logger.log('movie title:', doc.title);
+          logger.log('movie title (aggregation):', doc.title);
         }
   
         await newUser.deleteOne();

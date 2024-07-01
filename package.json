@@ -1,7 +1,7 @@
 {
   "name": "@storehouse/mongoose",
   "private": false,
-  "version": "2.1.1",
+  "version": "3.0.0",
   "description": "Mongoose manager for @storehouse/core",
   "main": "lib/index.js",
   "directories": {
@@ -11,7 +11,7 @@
     "doc": "typedoc",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\", \"noUnusedParameters\": false}' kaukau --require ts-node/register --config kaukau-src.js",
+    "test": "kaukau --require ts-node/register --config kaukau-src.js",
     "testlib": "kaukau --config kaukau-lib.js"
   },
   "repository": {
@@ -29,22 +29,22 @@
   },
   "homepage": "https://kisiwu.github.io/storehouse/mongoose/latest/",
   "dependencies": {
-    "@novice1/logger": "^1.3.3",
-    "@storehouse/core": "^1.1.0",
-    "bson": "^5.4.0",
-    "mongoose": "^7.4.3",
-    "tslib": "^2.6.1"
+    "@novice1/logger": "^1.5.0",
+    "@storehouse/core": "^1.1.1",
+    "bson": "^6.8.0",
+    "mongoose": "^8.4.4",
+    "tslib": "^2.6.3"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^20.5.0",
-    "@typescript-eslint/eslint-plugin": "^6.3.0",
-    "@typescript-eslint/parser": "^6.3.0",
-    "eslint": "^8.47.0",
-    "kaukau": "^3.0.0",
-    "ts-node": "^10.9.1",
-    "typedoc": "^0.24.8",
-    "typescript": "^5.1.6"
+    "@types/chai": "^4.3.16",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^20.14.9",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "eslint": "^8.57.0",
+    "kaukau": "^3.1.2",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.26.3",
+    "typescript": "^5.5.2"
   }
 }
