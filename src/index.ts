@@ -16,7 +16,8 @@ import { CustomAggregate, WrapAggregation } from './aggregation';
 export * from './aggregation';
 
 const Log = Logger.debugger('@storehouse/mongoose:manager');
-//type THydratedDocumentTypre = IfAny<TRawDocType, any, TVirtuals & TInstanceMethods extends Record<string, never> ? Document<unknown, TQueryHelpers, TRawDocType> & Require_id<...> : IfAny<...>>, TSchema = any>
+const LogGetModel = Log.extend('getModel');
+
 export interface CustomModel<
   TRawDocType = unknown, 
   TQueryHelpers = unknown, 
@@ -196,23 +197,6 @@ export class MongooseManager implements IManager {
     this.#connection = undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  getModelDeprecated<M extends CustomModel<Document> = CustomModel<Document>, TQueryHelpers = {}>(name: string): M {
-    const c = this.getConnection();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const model = ( c.model<Document, M, TQueryHelpers>(name)) as any
-    // add wrapper properties
-    if (!model.aggregation) {
-      const aggregation = WrapAggregation(model);
-      model.aggregation = aggregation;
-      console.log('set aggregation to', model.aggregation)
-    } else {
-      console.log('aggregation is', model.aggregation)
-    }
-    return model;
-  }
-
-
   getModel<
   T extends Document = Document,
   TQueryHelpers = unknown, 
@@ -228,9 +212,9 @@ export class MongooseManager implements IManager {
     if (!model.aggregation) {
       const aggregation = WrapAggregation(model);
       model.aggregation = aggregation;
-      console.log('set aggregation to', model.aggregation)
+      LogGetModel.debug('set "aggregation" to', model)
     } else {
-      console.log('aggregation is', model.aggregation)
+      LogGetModel.debug('"aggregation" is alredy set for', model)
     }
     return model;
   }

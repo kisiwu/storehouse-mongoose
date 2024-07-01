@@ -70,12 +70,14 @@ describe('connect', function () {
         if (movies.length) {
           const doc = movies[0];
           logger.log('new movie title:', doc.title);
+          expect(doc.title).to.be.a('string');
         }
 
         const movAggr = await Movies.aggregate<Movie>().option({maxTimeMS: 2000}).match({})
         if (movAggr.length) {
           const doc = movAggr[0];
           logger.log('movie title (aggregate):', doc.title);
+          expect(doc.title).to.be.a('string');
         }
   
 
@@ -85,8 +87,13 @@ describe('connect', function () {
         if (moviesFromAggr.length) {
           const doc = moviesFromAggr[0];
           logger.log('movie title (aggregation):', doc.title);
+          expect(doc.title).to.be.a('string');
         }
   
+        logger.info('"aggregation"\'s only advantage => counting documents:', await Movies.aggregation()
+        .option({ maxTimeMS: 2000 })
+        .match({}).countDocuments());
+
         await newUser.deleteOne();
         logger.info('deleted movie');
       //}

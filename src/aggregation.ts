@@ -7,7 +7,12 @@ import  mongoose, {
   HydratedDocument
 } from 'mongoose';
 
-interface OverwrittenAggregate<A = unknown> extends Omit<Aggregate<A[]>, 'model'> {
+export interface ExtendedAggregate<ResultType> extends Aggregate<ResultType> {
+  countDocuments(): Promise<number>;
+}
+
+// TODO: model<T = Document>() should return a CustomModel
+export interface OverwrittenAggregate<A = unknown> extends Omit<ExtendedAggregate<A[]>, 'model'> {
   model<T = Document>(): Model<T>;
   model(model: unknown): Aggregate<A[]>;
   [key: string]: unknown;
@@ -50,12 +55,6 @@ function execWithDefaultCursor<T = unknown>(
   });
 }
 
-/**
- *
- * @param {*} aggregate
- * @param {Object[]} chain
- * @returns {Promise<number>}
- */
 function countDocuments(
   aggregate: OverwrittenAggregate,
   chain: ChainObject[]) {

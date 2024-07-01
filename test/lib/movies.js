@@ -11,7 +11,8 @@ module.exports = {
         index: { unique: true },
       },
       rate: {
-        type: Number
+        type: Number,
+        default: 0
       },
     }),
     collection: 'movies'
