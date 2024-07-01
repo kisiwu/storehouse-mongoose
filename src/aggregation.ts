@@ -7,14 +7,15 @@ import  mongoose, {
   HydratedDocument
 } from 'mongoose';
 
-export interface ExtendedAggregate<ResultType> extends Aggregate<ResultType> {
+interface ExtendedAggregate<ResultType> extends Aggregate<ResultType> {
   countDocuments(): Promise<number>;
 }
 
-// TODO: model<T = Document>() should return a CustomModel
 export interface OverwrittenAggregate<A = unknown> extends Omit<ExtendedAggregate<A[]>, 'model'> {
-  model<T = Document>(): Model<T>;
-  model(model: unknown): Aggregate<A[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model(model: Model<any>): Aggregate<A[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model(): Model<any>; // TODO: should return the current wrapped model (= CustomModel)
   [key: string]: unknown;
 }
 
@@ -167,7 +168,7 @@ TSchema = any
 
         if (verb == 'model') {
           if (args.length) {
-            aggregate.model(args[0]);
+            aggregate.model(args[0] as Model<unknown>);
             return aggregation;
           } else {
             return aggregate.model();

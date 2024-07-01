@@ -79,9 +79,9 @@ describe('connect', function () {
           logger.log('movie title (aggregate):', doc.title);
           expect(doc.title).to.be.a('string');
         }
-  
 
-        const moviesFromAggr = await Movies.aggregation<Movie>()
+        // notice: extra step "model(...)" to see if it works
+        const moviesFromAggr = await Movies.aggregation<Movie>().model(Movies)
           .option({maxTimeMS: 2000})
           .match({});
         if (moviesFromAggr.length) {
