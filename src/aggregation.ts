@@ -9,6 +9,7 @@ import  mongoose, {
 
 interface ExtendedAggregate<ResultType> extends Aggregate<ResultType> {
   countDocuments(): Promise<number>;
+  exec(cursorOptions?: Record<string, unknown> | undefined): Promise<ResultType>
 }
 
 export interface OverwrittenAggregate<A = unknown> extends Omit<ExtendedAggregate<A[]>, 'model'> {
