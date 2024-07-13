@@ -1,13 +1,13 @@
 import { IManager, ManagerArg } from '@storehouse/core/lib/manager';
 import { Registry } from '@storehouse/core/lib/registry';
 import  mongoose, { 
-  ConnectOptions, 
-  Document,
+  ConnectOptions,
   Model, 
   Connection,
   Schema,
   Types as MongooseTypes,
-  HydratedDocument
+  HydratedDocument,
+  DefaultSchemaOptions
 } from 'mongoose';
 import { ObjectIdLike } from 'bson';
 import Logger from '@novice1/logger';
@@ -17,6 +17,10 @@ export * from './aggregation';
 
 const Log = Logger.debugger('@storehouse/mongoose:manager');
 const LogGetModel = Log.extend('getModel');
+
+export interface AggregationModel {
+  aggregation<ResultElementType>(): CustomAggregate<ResultElementType>;
+}
 
 export interface CustomModel<
   TRawDocType = unknown, 
@@ -37,16 +41,33 @@ export interface CustomModel<
   aggregation<ResultElementType>(): CustomAggregate<ResultElementType>;
 }
 
-export interface ModelSettings {
+export interface ModelSettings<
+    RawDocType = NonNullable<unknown>,
+    TModelType = Model<RawDocType, NonNullable<unknown>, NonNullable<unknown>, NonNullable<unknown>>,
+    TInstanceMethods = NonNullable<unknown>,
+    TQueryHelpers = NonNullable<unknown>,
+    TVirtuals = NonNullable<unknown>,
+    TStaticMethods = NonNullable<unknown>,
+    TSchemaOptions = DefaultSchemaOptions
+> {
   name: string, 
-  schema: Schema, 
+  schema: Schema<RawDocType, TModelType, TInstanceMethods, TQueryHelpers, TVirtuals, TStaticMethods, TSchemaOptions>, 
   collection?: string
 }
 
-export interface MongooseManagerArg extends ManagerArg {
+export interface MongooseManagerArg<
+  RawDocType = NonNullable<unknown>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TModelType = any,
+  TInstanceMethods = NonNullable<unknown>,
+  TQueryHelpers = NonNullable<unknown>,
+  TVirtuals = NonNullable<unknown>,
+  TStaticMethods = NonNullable<unknown>,
+  TSchemaOptions = NonNullable<unknown>,
+> extends ManagerArg {
   config?: {
     database: string;
-    models: ModelSettings[],
+    models: ModelSettings<RawDocType, TModelType, TInstanceMethods, TQueryHelpers, TVirtuals, TStaticMethods, TSchemaOptions>[],
     options?: ConnectOptions
   },
 }
@@ -59,15 +80,11 @@ export interface MongooseManagerArg extends ManagerArg {
  * @returns 
  */
 export function getModel<
-T extends Document = Document, 
-TQueryHelpers = unknown, 
-TMethods = unknown, 
-TVirtuals = unknown, 
-THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>,
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-TSchema = any>
-(registry: Registry, managerName: string, modelName?: string): CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema> {
-  const model = registry.getModel<CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema>>(managerName, modelName);
+  T = NonNullable<unknown>,
+  TModel extends Model<T> = Model<T>
+>
+(registry: Registry, managerName: string, modelName?: string): TModel & AggregationModel {
+  const model = registry.getModel<TModel & AggregationModel>(managerName, modelName);
   if (!model) {
     throw new ReferenceError(`Could not find model "${modelName || managerName}"`);
   }
@@ -198,16 +215,12 @@ export class MongooseManager implements IManager {
   }
 
   getModel<
-  T extends Document = Document,
-  TQueryHelpers = unknown, 
-  TMethods = unknown,
-  TVirtuals = unknown,
-  THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TSchema = any
-  >(name: string): CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema> {
+  T = NonNullable<unknown>,
+  TModel extends Model<T> = Model<T>,
+  TQueryHelpers = unknown,
+  >(name: string): TModel & AggregationModel {
     const c = this.getConnection();
-    const model = ( c.model<T, CustomModel<T,TQueryHelpers,TMethods,TVirtuals,THydratedDocumentType,TSchema>, TQueryHelpers>(name))
+    const model = ( c.model<T, TModel & AggregationModel, TQueryHelpers>(name))
     // add wrapper properties
     if (!model.aggregation) {
       const aggregation = WrapAggregation(model);

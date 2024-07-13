@@ -1,5 +1,5 @@
-import { Document, Schema, Model, QueryWithHelpers, HydratedDocument } from 'mongoose';
-//import { ModelSettings } from '../../src/index';
+import { Schema, Model, QueryWithHelpers, HydratedDocument, Require_id } from 'mongoose';
+import { ModelSettings } from '../../src/index';
 
 /**
  * the object as it is stored in MongoDB
@@ -9,8 +9,7 @@ export interface MovieJson {
   rate?: number;
 }
 
-export interface Movie extends Document, MovieJson {
-}
+export type Movie = Require_id<MovieJson>
 
 // Put all user instance methods in this interface:
 export interface MovieJsonMethods {
@@ -102,10 +101,30 @@ movieSchema.query.byTitle = function(
 }
 
 
-export const MovieSettings/*: ModelSettings*/ = {
+export const MovieSettings: ModelSettings<MovieJson, MovieModel> = {
     name: 'movies',
     schema: movieSchema,
     collection: 'movies'
+};
+
+export interface IRoom {
+  name: string
+}
+
+export interface RoomModel extends Model<IRoom> {}
+
+export const RoomSettings: ModelSettings<IRoom> = {
+  name: 'rooms',
+  schema: new Schema({
+    name: {
+      type: String,
+      trim: true,
+      required: [true, '\'title\' is required.'],
+      unique: true,
+      index: { unique: true },
+    },
+  }),
+  collection: 'rooms'
 };
 
 

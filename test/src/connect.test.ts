@@ -5,7 +5,7 @@ import {expect} from 'chai';
 
 //Debug.enable('@storehouse/mongoose*');
 
-import { MovieSettings, Movie } from './movieSchema';
+import { MovieSettings, RoomSettings, MovieJson, Movie, MovieModel } from './movieSchema';
 
 describe('connect', function () {
   const { logger, params } = this.ctx.kaukau;
@@ -36,7 +36,8 @@ describe('connect', function () {
               maxPoolSize: 24
             },
             models: [
-              MovieSettings
+              MovieSettings,
+              RoomSettings
             ]
           }
         }
@@ -58,24 +59,33 @@ describe('connect', function () {
         }
       //}
 
-      const Movies = getModel<Movie>(Storehouse, /*'local',*/ 'movies'); // Storehouse.getModel<CustomModel<Movie>>('movies');
-  
+      const Movies = getModel<MovieJson, MovieModel>(Storehouse, /*'local',*/ 'movies'); // Storehouse.getModel<CustomModel<Movie>>('movies');
+
+      logger.log('static method', Movies.myStaticMethod())
+      expect(Movies.myStaticMethod()).to.be.a('number');
+
       //if(Movies) {
         const newUser = new Movies();
         newUser.title = `Last Knight ${Math.ceil(Math.random() * 1000) + 1}`;
         await newUser.save();
         logger.log('added new movie');
+
+        expect(newUser.fullName).to.be.a('function')
+        expect(newUser.fullName()).to.be.a('string')
   
-        const movies: Movie[] = await Movies.find({}).sort({_id: -1}).limit(1);
+        const movies = await Movies.find({}).sort({_id: -1}).limit(1);
         if (movies.length) {
           const doc = movies[0];
           logger.log('new movie title:', doc.title);
+          logger.info('displayName (virtual):', doc.displayName);
           expect(doc.title).to.be.a('string');
+          expect(doc.displayName).to.be.a('string');
         }
 
         const movAggr = await Movies.aggregate<Movie>().option({maxTimeMS: 2000}).match({})
         if (movAggr.length) {
           const doc = movAggr[0];
+          logger.info('after aggregate', doc)
           logger.log('movie title (aggregate):', doc.title);
           expect(doc.title).to.be.a('string');
         }
@@ -86,6 +96,7 @@ describe('connect', function () {
           .match({});
         if (moviesFromAggr.length) {
           const doc = moviesFromAggr[0];
+          logger.info('after aggregation', doc)
           logger.log('movie title (aggregation):', doc.title);
           expect(doc.title).to.be.a('string');
         }

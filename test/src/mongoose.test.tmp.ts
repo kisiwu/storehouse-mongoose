@@ -1,8 +1,7 @@
-import { createConnection/*, HydratedDocument*/ } from 'mongoose'
+import { createConnection } from 'mongoose'
 import { expect } from 'chai';
 
-import { MovieSettings, MovieJson, MovieModel, MovieVirtuals
-    /*, MovieQueryHelpers, MovieJsonMethods*/ } from './movieSchema';
+import { MovieSettings, MovieJson, MovieModel, MovieVirtuals } from './movieSchema';
 
 describe('just mongoose', function () {
     const { logger, params } = this.ctx.kaukau;
@@ -28,10 +27,7 @@ describe('just mongoose', function () {
             logger.log('retrieved connection for database', connection.name);
             expect(connection.name).to.be.a('string');
 
-
             const Movies = connection.model<MovieJson, MovieModel>(MovieSettings.name, MovieSettings.schema, MovieSettings.collection);
-
-            //const Movies = connection.model<MovieJson>(MovieSettings.name)
 
             logger.log('static method', Movies.myStaticMethod())
 

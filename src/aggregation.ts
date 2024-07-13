@@ -2,7 +2,6 @@
 
 import  mongoose, { 
   Aggregate,
-  Document,
   Model,
   HydratedDocument
 } from 'mongoose';
@@ -89,7 +88,7 @@ function countDocuments(
  * @returns 
  */
 export function WrapAggregation<
-T extends Document = Document,
+T = NonNullable<unknown>,
 TQueryHelpers = unknown, 
 TMethods = unknown,
 TVirtuals = unknown,
