@@ -6,40 +6,17 @@ import  mongoose, {
   Connection,
   Schema,
   Types as MongooseTypes,
-  HydratedDocument,
   DefaultSchemaOptions
 } from 'mongoose';
 import { ObjectIdLike } from 'bson';
 import Logger from '@novice1/logger';
 
-import { CustomAggregate, WrapAggregation } from './aggregation';
+import { WrapAggregation } from './aggregation';
+import { ModelWithAggregation } from './definitions';
 export * from './aggregation';
 
 const Log = Logger.debugger('@storehouse/mongoose:manager');
 const LogGetModel = Log.extend('getModel');
-
-export interface AggregationModel {
-  aggregation<ResultElementType>(): CustomAggregate<ResultElementType>;
-}
-
-export interface CustomModel<
-  TRawDocType = unknown, 
-  TQueryHelpers = unknown, 
-  TInstanceMethods = unknown,
-  TVirtuals = unknown,
-  THydratedDocumentType = HydratedDocument<TRawDocType, TVirtuals & TInstanceMethods, TQueryHelpers>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TSchema = any
-> extends Model<
-  TRawDocType, 
-  TQueryHelpers, 
-  TInstanceMethods,
-  TVirtuals,
-  THydratedDocumentType,
-  TSchema
-  > {
-  aggregation<ResultElementType>(): CustomAggregate<ResultElementType>;
-}
 
 export interface ModelSettings<
     RawDocType = NonNullable<unknown>,
@@ -83,8 +60,8 @@ export function getModel<
   T = NonNullable<unknown>,
   TModel extends Model<T> = Model<T>
 >
-(registry: Registry, managerName: string, modelName?: string): TModel & AggregationModel {
-  const model = registry.getModel<TModel & AggregationModel>(managerName, modelName);
+(registry: Registry, managerName: string, modelName?: string): TModel & ModelWithAggregation {
+  const model = registry.getModel<TModel & ModelWithAggregation>(managerName, modelName);
   if (!model) {
     throw new ReferenceError(`Could not find model "${modelName || managerName}"`);
   }
@@ -218,9 +195,9 @@ export class MongooseManager implements IManager {
   T = NonNullable<unknown>,
   TModel extends Model<T> = Model<T>,
   TQueryHelpers = unknown,
-  >(name: string): TModel & AggregationModel {
+  >(name: string): TModel & ModelWithAggregation {
     const c = this.getConnection();
-    const model = ( c.model<T, TModel & AggregationModel, TQueryHelpers>(name))
+    const model = ( c.model<T, TModel & ModelWithAggregation, TQueryHelpers>(name))
     // add wrapper properties
     if (!model.aggregation) {
       const aggregation = WrapAggregation(model);

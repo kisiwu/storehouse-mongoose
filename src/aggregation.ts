@@ -1,27 +1,10 @@
 // https://mongoosejs.com/docs/api/aggregate.html#aggregate_Aggregate
 
 import  mongoose, { 
-  Aggregate,
   Model,
   HydratedDocument
 } from 'mongoose';
-
-interface ExtendedAggregate<ResultType> extends Aggregate<ResultType> {
-  countDocuments(): Promise<number>;
-  exec(cursorOptions?: Record<string, unknown> | undefined): Promise<ResultType>
-}
-
-export interface OverwrittenAggregate<A = unknown> extends Omit<ExtendedAggregate<A[]>, 'model'> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model(model: Model<any>): Aggregate<A[]>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model(): Model<any>; // TODO: should return the current wrapped model (= CustomModel)
-  [key: string]: unknown;
-}
-
-export interface CustomAggregate<T = unknown> extends OverwrittenAggregate<T> {
-  countDocuments(): Promise<number>;
-}
+import { CustomAggregate } from './definitions';
 
 interface OverwrittenAggregateFunction {
   (...args: unknown[]): unknown;
@@ -35,7 +18,7 @@ interface ChainObject {
 type CursorOptions = NonNullable<unknown>;
 
 function execWithDefaultCursor<T = unknown>(
-  aggregate: OverwrittenAggregate, 
+  aggregate: CustomAggregate, 
   cursorOptions: Record<string, unknown> = {}) {
   
   const data: T[] = [];
@@ -57,7 +40,7 @@ function execWithDefaultCursor<T = unknown>(
 }
 
 function countDocuments(
-  aggregate: OverwrittenAggregate,
+  aggregate: CustomAggregate,
   chain: ChainObject[]) {
 
   const PromiseClass = mongoose.Promise || Promise;
@@ -97,7 +80,7 @@ THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>
 TSchema = any
 >(model: Model<T, TQueryHelpers, TMethods, TVirtuals, THydratedDocumentType, TSchema>) {
   return function start<TModel = T>(): CustomAggregate<TModel> {
-    let aggregate = <OverwrittenAggregate>model.aggregate();
+    let aggregate = <CustomAggregate>model.aggregate();
     const chain: ChainObject[] = [];
 
     const aggregation = {
@@ -186,7 +169,7 @@ TSchema = any
 
         // add default 'cursor', count and exec
         if (verb == 'countDocuments') {
-          return countDocuments(<OverwrittenAggregate>aggregate.model().aggregate(), chain);
+          return countDocuments(<CustomAggregate>aggregate.model().aggregate(), chain);
         }
 
         // add default 'cursor' and 'exec' if needed
