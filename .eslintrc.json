@@ -18,5 +18,6 @@
     "rules": {
         "quotes": [1, "single"],
         "quote-props": [1, "as-needed"]
-    }
+    },
+    "ignorePatterns": ["*.js"]
 }
