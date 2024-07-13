@@ -49,13 +49,16 @@ export interface MongooseManagerArg<
   },
 }
 
-/**
- * 
- * @param registry 
- * @param manager Manager name or model name
- * @param modelName Model name
- * @returns 
- */
+export function getModel<
+  T = NonNullable<unknown>,
+  TModel extends Model<T> = Model<T>
+>
+(registry: Registry, modelName: string): TModel & ModelWithAggregation;
+export function getModel<
+  T = NonNullable<unknown>,
+  TModel extends Model<T> = Model<T>
+>
+(registry: Registry, managerName: string, modelName: string): TModel & ModelWithAggregation;
 export function getModel<
   T = NonNullable<unknown>,
   TModel extends Model<T> = Model<T>
