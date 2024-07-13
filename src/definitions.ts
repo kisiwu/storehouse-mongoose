@@ -9,7 +9,7 @@ export interface ExtendedAggregate<ResultType> extends Aggregate<ResultType> {
     exec(cursorOptions?: Record<string, unknown> | undefined): Promise<ResultType>
 }
 
-export interface CustomAggregate<A = unknown> extends Omit<ExtendedAggregate<A[]>, 'model'> {
+export interface Aggregation<A = unknown> extends Omit<ExtendedAggregate<A[]>, 'model'> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     model(model: Model<any>): Aggregate<A[]>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,8 +17,8 @@ export interface CustomAggregate<A = unknown> extends Omit<ExtendedAggregate<A[]
     [key: string]: unknown;
 }
 
-export interface ModelWithAggregation {
-    aggregation<ResultElementType>(): CustomAggregate<ResultElementType>;
+export interface WithAggregationMethod {
+    aggregation<ResultElementType>(): Aggregation<ResultElementType>;
 }
 
 export interface CustomModel<
@@ -36,5 +36,5 @@ export interface CustomModel<
     TVirtuals,
     THydratedDocumentType,
     TSchema
->, ModelWithAggregation {
+>, WithAggregationMethod {
 }

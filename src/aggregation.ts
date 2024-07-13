@@ -4,7 +4,7 @@ import  mongoose, {
   Model,
   HydratedDocument
 } from 'mongoose';
-import { CustomAggregate } from './definitions';
+import { Aggregation } from './definitions';
 
 interface OverwrittenAggregateFunction {
   (...args: unknown[]): unknown;
@@ -18,7 +18,7 @@ interface ChainObject {
 type CursorOptions = NonNullable<unknown>;
 
 function execWithDefaultCursor<T = unknown>(
-  aggregate: CustomAggregate, 
+  aggregate: Aggregation, 
   cursorOptions: Record<string, unknown> = {}) {
   
   const data: T[] = [];
@@ -40,7 +40,7 @@ function execWithDefaultCursor<T = unknown>(
 }
 
 function countDocuments(
-  aggregate: CustomAggregate,
+  aggregate: Aggregation,
   chain: ChainObject[]) {
 
   const PromiseClass = mongoose.Promise || Promise;
@@ -79,13 +79,13 @@ THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 TSchema = any
 >(model: Model<T, TQueryHelpers, TMethods, TVirtuals, THydratedDocumentType, TSchema>) {
-  return function start<TModel = T>(): CustomAggregate<TModel> {
-    let aggregate = <CustomAggregate>model.aggregate();
+  return function start<TModel = T>(): Aggregation<TModel> {
+    let aggregate = <Aggregation>model.aggregate();
     const chain: ChainObject[] = [];
 
     const aggregation = {
       [Symbol.asyncIterator]: wrap('Symbol.asyncIterator'),
-      [Symbol.toStringTag]: 'CustomAggregate',
+      [Symbol.toStringTag]: 'Aggregation',
       addCursorFlag: wrap('addCursorFlag'), // => aggregate
       addFields: wrap('addFields'), // => aggregate
       allowDiskUse: wrap('allowDiskUse'), // => aggregate
@@ -169,7 +169,7 @@ TSchema = any
 
         // add default 'cursor', count and exec
         if (verb == 'countDocuments') {
-          return countDocuments(<CustomAggregate>aggregate.model().aggregate(), chain);
+          return countDocuments(<Aggregation>aggregate.model().aggregate(), chain);
         }
 
         // add default 'cursor' and 'exec' if needed

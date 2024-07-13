@@ -12,8 +12,8 @@ import { ObjectIdLike } from 'bson';
 import Logger from '@novice1/logger';
 
 import { WrapAggregation } from './aggregation';
-import { ModelWithAggregation } from './definitions';
-export * from './aggregation';
+import { WithAggregationMethod } from './definitions';
+export { CustomModel, Aggregation, WithAggregationMethod } from './definitions';
 
 const Log = Logger.debugger('@storehouse/mongoose:manager');
 const LogGetModel = Log.extend('getModel');
@@ -53,18 +53,18 @@ export function getModel<
   T = NonNullable<unknown>,
   TModel extends Model<T> = Model<T>
 >
-(registry: Registry, modelName: string): TModel & ModelWithAggregation;
+(registry: Registry, modelName: string): TModel & WithAggregationMethod;
 export function getModel<
   T = NonNullable<unknown>,
   TModel extends Model<T> = Model<T>
 >
-(registry: Registry, managerName: string, modelName: string): TModel & ModelWithAggregation;
+(registry: Registry, managerName: string, modelName: string): TModel & WithAggregationMethod;
 export function getModel<
   T = NonNullable<unknown>,
   TModel extends Model<T> = Model<T>
 >
-(registry: Registry, managerName: string, modelName?: string): TModel & ModelWithAggregation {
-  const model = registry.getModel<TModel & ModelWithAggregation>(managerName, modelName);
+(registry: Registry, managerName: string, modelName?: string): TModel & WithAggregationMethod {
+  const model = registry.getModel<TModel & WithAggregationMethod>(managerName, modelName);
   if (!model) {
     throw new ReferenceError(`Could not find model "${modelName || managerName}"`);
   }
@@ -198,9 +198,9 @@ export class MongooseManager implements IManager {
   T = NonNullable<unknown>,
   TModel extends Model<T> = Model<T>,
   TQueryHelpers = unknown,
-  >(name: string): TModel & ModelWithAggregation {
+  >(name: string): TModel & WithAggregationMethod {
     const c = this.getConnection();
-    const model = ( c.model<T, TModel & ModelWithAggregation, TQueryHelpers>(name))
+    const model = ( c.model<T, TModel & WithAggregationMethod, TQueryHelpers>(name))
     // add wrapper properties
     if (!model.aggregation) {
       const aggregation = WrapAggregation(model);
