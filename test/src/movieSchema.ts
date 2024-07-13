@@ -33,10 +33,13 @@ export interface MovieQueryHelpers {
 }
 
 export interface MovieVirtuals {
+  /**
+   * virtual getter
+   */
   displayName: string
 }
 
-export interface MovieModel extends Model<MovieJson, MovieQueryHelpers, MovieJsonMethods>, MovieModelStatics {
+export interface MovieModel extends Model<MovieJson, MovieQueryHelpers, MovieJsonMethods, MovieVirtuals>, MovieModelStatics {
 }
 
 const movieSchema = new Schema<MovieJson, MovieModel, MovieJsonMethods, MovieQueryHelpers, MovieVirtuals>({

@@ -1,7 +1,8 @@
 import { createConnection/*, HydratedDocument*/ } from 'mongoose'
 import { expect } from 'chai';
 
-import { MovieSettings, MovieJson, MovieModel } from './movieSchema';
+import { MovieSettings, MovieJson, MovieModel, MovieVirtuals
+    /*, MovieQueryHelpers, MovieJsonMethods*/ } from './movieSchema';
 
 describe('just mongoose', function () {
     const { logger, params } = this.ctx.kaukau;
@@ -36,16 +37,18 @@ describe('just mongoose', function () {
 
             const title = `Last peasant ${Math.ceil(Math.random() * 1000) + 1}`
 
-            const newMovie/*: HydratedDocument<MovieJson>*/ = new Movies({ rate: 5, title })
+            /*newMovie: HydratedDocument<MovieJson, MovieVirtuals & MovieJsonMethods, MovieQueryHelpers>*/
+            const newMovie = new Movies({ rate: 5, title })
             await newMovie.save()
             logger.log('fullname()', newMovie.fullName())
+            logger.log('displayName', newMovie.displayName)
 
-            const obj = newMovie.toObject({ virtuals: true })
+            const obj = newMovie.toObject<MovieJson & MovieVirtuals>({virtuals: true})
             logger.info('obj', obj)
 
             logger.log('Query Helper ".byTitle(...)"', await Movies.find({}).byTitle(title))
 
-            logger.info('deleted', await newMovie.deleteOne())
+            logger.info('deleted', (await newMovie.deleteOne()))
 
             await connection.close()
             logger.info('closed connections');
