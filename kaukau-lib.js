@@ -17,13 +17,13 @@ module.exports = {
   },
   parameters: {
     mongodb: {
-      protocol: process.env.TEST_DB_PROTOCOL || 'mongodb+srv',
-      hostname: process.env.TEST_DB_HOSTNAME || 'cluster0.xycj1.mongodb.net',
-      port: typeof process.env.TEST_DB_PORT === 'undefined' ? '' : process.env.TEST_DB_PORT,
-      database: process.env.TEST_DB_NAME || 'github',
-      username: process.env.TEST_DB_USERNAME || 'github-user2',
-      password: process.env.TEST_DB_PASSWORD || 'fgxNtDTF0N9AtYWh',
-      options: process.env.TEST_DB_OPTIONS || 'retryWrites=true&w=majority&appName=Cluster0',
+      protocol: process.env.TEST_DB_PROTOCOL || 'mongodb',
+      hostname: process.env.TEST_DB_HOSTNAME || 'localhost',
+      port: typeof process.env.TEST_DB_PORT === 'undefined' ? 27017 : process.env.TEST_DB_PORT,
+      database: process.env.TEST_DB_NAME || 'ci',
+			username: process.env.TEST_DB_USERNAME || '',
+      password: process.env.TEST_DB_PASSWORD || '',
+      options: process.env.TEST_DB_OPTIONS || '',
     }
   },
 };
