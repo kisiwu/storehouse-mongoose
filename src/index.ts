@@ -203,11 +203,9 @@ export class MongooseManager implements IManager {
     const model = ( c.model<T, TModel & WithAggregationMethod, TQueryHelpers>(name))
     // add wrapper properties
     if (!model.aggregation) {
+      LogGetModel.debug('set "aggregation" to', model)
       const aggregation = WrapAggregation(model);
       model.aggregation = aggregation;
-      LogGetModel.debug('set "aggregation" to', model)
-    } else {
-      LogGetModel.debug('"aggregation" is alredy set for', model)
     }
     return model;
   }
