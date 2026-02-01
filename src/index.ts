@@ -210,7 +210,7 @@ export class MongooseManager implements IManager {
     return model;
   }
 
-  toObjectId(value?: string | number | MongooseTypes.ObjectId | Buffer | ObjectIdLike | undefined): MongooseTypes.ObjectId | undefined {
+  toObjectId(value?: string | number | MongooseTypes.ObjectId | Uint8Array | ObjectIdLike | undefined): MongooseTypes.ObjectId | undefined {
     let r: MongooseTypes.ObjectId | undefined;
     try {
       r = new mongoose.Types.ObjectId(value);
