@@ -1,35 +1,42 @@
-import { IManager, ManagerArg } from '@storehouse/core/lib/manager';
-import { Registry } from '@storehouse/core/lib/registry';
-import  mongoose, { 
+import { WrapAggregation } from './aggregation';
+import { WithAggregationMethod } from './definitions';
+import Logger from '@novice1/logger';
+import {
+  InvalidManagerConfigError,
+  ManagerNotFoundError,
+  ModelNotFoundError,
+  HealthCheckResult,
+  IManager,
+  ManagerArg,
+  Registry,
+} from '@storehouse/core';
+import { ObjectIdLike } from 'bson';
+import mongoose, {
   ConnectOptions,
-  Model, 
+  Model,
   Connection,
   Schema,
   Types as MongooseTypes,
-  DefaultSchemaOptions
+  DefaultSchemaOptions,
 } from 'mongoose';
-import { ObjectIdLike } from 'bson';
-import Logger from '@novice1/logger';
 
-import { WrapAggregation } from './aggregation';
-import { WithAggregationMethod } from './definitions';
 export { CustomModel, Aggregation, WithAggregationMethod } from './definitions';
 
 const Log = Logger.debugger('@storehouse/mongoose:manager');
 const LogGetModel = Log.extend('getModel');
 
 export interface ModelSettings<
-    RawDocType = NonNullable<unknown>,
-    TModelType = Model<RawDocType, NonNullable<unknown>, NonNullable<unknown>, NonNullable<unknown>>,
-    TInstanceMethods = NonNullable<unknown>,
-    TQueryHelpers = NonNullable<unknown>,
-    TVirtuals = NonNullable<unknown>,
-    TStaticMethods = NonNullable<unknown>,
-    TSchemaOptions = DefaultSchemaOptions
+  RawDocType = NonNullable<unknown>,
+  TModelType = Model<RawDocType, NonNullable<unknown>, NonNullable<unknown>, NonNullable<unknown>>,
+  TInstanceMethods = NonNullable<unknown>,
+  TQueryHelpers = NonNullable<unknown>,
+  TVirtuals = NonNullable<unknown>,
+  TStaticMethods = NonNullable<unknown>,
+  TSchemaOptions = DefaultSchemaOptions,
 > {
-  name: string, 
-  schema: Schema<RawDocType, TModelType, TInstanceMethods, TQueryHelpers, TVirtuals, TStaticMethods, TSchemaOptions>, 
-  collection?: string
+  name: string;
+  schema: Schema<RawDocType, TModelType, TInstanceMethods, TQueryHelpers, TVirtuals, TStaticMethods, TSchemaOptions>;
+  collection?: string;
 }
 
 export interface MongooseManagerArg<
@@ -44,29 +51,36 @@ export interface MongooseManagerArg<
 > extends ManagerArg {
   config?: {
     database: string;
-    models: ModelSettings<RawDocType, TModelType, TInstanceMethods, TQueryHelpers, TVirtuals, TStaticMethods, TSchemaOptions>[],
-    options?: ConnectOptions
-  },
+    models: ModelSettings<
+      RawDocType,
+      TModelType,
+      TInstanceMethods,
+      TQueryHelpers,
+      TVirtuals,
+      TStaticMethods,
+      TSchemaOptions
+    >[];
+    options?: ConnectOptions;
+  };
 }
 
-export function getModel<
-  T = NonNullable<unknown>,
-  TModel extends Model<T> = Model<T>
->
-(registry: Registry, modelName: string): TModel & WithAggregationMethod;
-export function getModel<
-  T = NonNullable<unknown>,
-  TModel extends Model<T> = Model<T>
->
-(registry: Registry, managerName: string, modelName: string): TModel & WithAggregationMethod;
-export function getModel<
-  T = NonNullable<unknown>,
-  TModel extends Model<T> = Model<T>
->
-(registry: Registry, managerName: string, modelName?: string): TModel & WithAggregationMethod {
+export function getModel<T = NonNullable<unknown>, TModel extends Model<T> = Model<T>>(
+  registry: Registry,
+  modelName: string
+): TModel & WithAggregationMethod;
+export function getModel<T = NonNullable<unknown>, TModel extends Model<T> = Model<T>>(
+  registry: Registry,
+  managerName: string,
+  modelName: string
+): TModel & WithAggregationMethod;
+export function getModel<T = NonNullable<unknown>, TModel extends Model<T> = Model<T>>(
+  registry: Registry,
+  managerName: string,
+  modelName?: string
+): TModel & WithAggregationMethod {
   const model = registry.getModel<TModel & WithAggregationMethod>(managerName, modelName);
   if (!model) {
-    throw new ReferenceError(`Could not find model "${modelName || managerName}"`);
+    throw new ModelNotFoundError(modelName || managerName, modelName ? managerName : undefined);
   }
   return model;
 }
@@ -74,10 +88,12 @@ export function getModel<
 export function getManager<M extends MongooseManager = MongooseManager>(registry: Registry, managerName?: string): M {
   const manager = registry.getManager<M>(managerName);
   if (!manager) {
-    throw new ReferenceError(`Could not find manager "${managerName || registry.defaultManager}"`);
+    throw new ManagerNotFoundError(managerName || registry.defaultManager);
   }
   if (!(manager instanceof MongooseManager)) {
-    throw new TypeError(`Manager "${managerName || registry.defaultManager}" is not instance of MongooseManager`);
+    throw new InvalidManagerConfigError(
+      `Manager "${managerName || registry.defaultManager}" is not instance of MongooseManager`
+    );
   }
   return manager;
 }
@@ -85,7 +101,7 @@ export function getManager<M extends MongooseManager = MongooseManager>(registry
 export function getConnection<T extends Connection = Connection>(registry: Registry, managerName?: string): T {
   const conn = registry.getConnection<T>(managerName);
   if (!conn) {
-    throw new ReferenceError(`Could not find connection "${managerName || registry.defaultManager}"`);
+    throw new ManagerNotFoundError(managerName || registry.defaultManager);
   }
   return conn;
 }
@@ -107,9 +123,9 @@ export class MongooseManager implements IManager {
     this.#modelSettings = {};
 
     if (!this.#uri) {
-      throw new TypeError('Missing database uri');
+      throw new InvalidManagerConfigError('Missing database uri');
     }
-    
+
     settings.config?.models
       .filter((im) => im && im.name && im.schema)
       .forEach((im) => {
@@ -176,10 +192,7 @@ export class MongooseManager implements IManager {
 
   getConnection(): Connection {
     let r: Connection;
-    if (
-      !this.#connection ||
-      (this.#connection.readyState != 1 && this.#connection.readyState != 2)
-    ) {
+    if (!this.#connection || (this.#connection.readyState != 1 && this.#connection.readyState != 2)) {
       r = this._createConnection();
     } else {
       r = this.#connection;
@@ -194,23 +207,23 @@ export class MongooseManager implements IManager {
     this.#connection = undefined;
   }
 
-  getModel<
-  T = NonNullable<unknown>,
-  TModel extends Model<T> = Model<T>,
-  TQueryHelpers = unknown,
-  >(name: string): TModel & WithAggregationMethod {
+  getModel<T = NonNullable<unknown>, TModel extends Model<T> = Model<T>, TQueryHelpers = unknown>(
+    name: string
+  ): TModel & WithAggregationMethod {
     const c = this.getConnection();
-    const model = ( c.model<T, TModel & WithAggregationMethod, TQueryHelpers>(name))
+    const model = c.model<T, TModel & WithAggregationMethod, TQueryHelpers>(name);
     // add wrapper properties
     if (!model.aggregation) {
-      LogGetModel.debug('set "aggregation" to', model)
+      LogGetModel.debug('set "aggregation" to', model);
       const aggregation = WrapAggregation(model);
       model.aggregation = aggregation;
     }
     return model;
   }
 
-  toObjectId(value?: string | number | MongooseTypes.ObjectId | Uint8Array | ObjectIdLike | undefined): MongooseTypes.ObjectId | undefined {
+  toObjectId(
+    value?: string | MongooseTypes.ObjectId | Uint8Array | ObjectIdLike | undefined
+  ): MongooseTypes.ObjectId | undefined {
     let r: MongooseTypes.ObjectId | undefined;
     try {
       r = new mongoose.Types.ObjectId(value);
@@ -218,5 +231,80 @@ export class MongooseManager implements IManager {
       Log.warn(e);
     }
     return r;
+  }
+
+  async isConnected(): Promise<boolean> {
+    return this.#connection?.readyState === 1; // 1 = connected
+  }
+
+  async healthCheck(): Promise<HealthCheckResult> {
+    const start = Date.now();
+    const timestamp = start;
+
+    const connection = this.getConnection();
+
+    if (!connection) {
+      return {
+        healthy: false,
+        message: 'No connection available',
+        details: {
+          name: this.name,
+        },
+        timestamp,
+      };
+    }
+
+    try {
+      // Check connection state
+      const readyState = connection.readyState;
+      const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+
+      if (readyState !== 1) {
+        return {
+          healthy: false,
+          message: `Connection state: ${states[readyState] || 'unknown'}`,
+          details: {
+            name: this.name,
+            readyState,
+            readyStateLabel: states[readyState] || 'unknown',
+          },
+          timestamp,
+        };
+      }
+
+      // Ping the database
+      await connection.db?.admin().ping();
+
+      const latency = Date.now() - start;
+
+      return {
+        healthy: true,
+        message: 'Mongoose connection is healthy',
+        details: {
+          name: this.name,
+          databaseName: connection.name,
+          host: connection.host,
+          port: connection.port,
+          models: Object.keys(connection.models),
+          modelCount: Object.keys(connection.models).length,
+          readyState: states[readyState],
+          latency: `${latency}ms`,
+        },
+        latency,
+        timestamp,
+      };
+    } catch (error) {
+      return {
+        healthy: false,
+        message: `Mongoose health check failed: ${error instanceof Error ? error.message : String(error)}`,
+        details: {
+          name: this.name,
+          readyState: connection.readyState,
+          error: error instanceof Error ? error.stack : String(error),
+        },
+        latency: Date.now() - start,
+        timestamp,
+      };
+    }
   }
 }

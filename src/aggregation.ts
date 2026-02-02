@@ -1,6 +1,6 @@
 // https://mongoosejs.com/docs/api/aggregate.html#aggregate_Aggregate
 
-import  mongoose, { 
+import mongoose, {
   Model,
   HydratedDocument
 } from 'mongoose';
@@ -18,9 +18,9 @@ interface ChainObject {
 type CursorOptions = NonNullable<unknown>;
 
 function execWithDefaultCursor<T = unknown>(
-  aggregate: Aggregation, 
+  aggregate: Aggregation,
   cursorOptions: Record<string, unknown> = {}) {
-  
+
   const data: T[] = [];
   const PromiseClass = mongoose.Promise || Promise;
 
@@ -43,16 +43,17 @@ function countDocuments(
   aggregate: Aggregation,
   chain: ChainObject[]) {
 
-  const PromiseClass = mongoose.Promise || Promise;
+  const PromiseClass: PromiseConstructor = mongoose.Promise || Promise;
 
   chain.forEach((ch) => {
     (<OverwrittenAggregateFunction>aggregate[ch.method])(...ch.args);
   });
 
-  return new PromiseClass(async function (resolve: (value: unknown) => void, reject: (reason?: unknown) => void) {
+  return new PromiseClass<number>(async (resolve, reject) => {
+    // use cursor to get count
     try {
       const cursor = aggregate.count('count').cursor({});
-      let doc: {count: number};
+      let doc: { count: number };
       let count = 0;
       while ((doc = await cursor.next())) {
         count = doc.count || count;
@@ -71,13 +72,13 @@ function countDocuments(
  * @returns 
  */
 export function WrapAggregation<
-T = NonNullable<unknown>,
-TQueryHelpers = unknown, 
-TMethods = unknown,
-TVirtuals = unknown,
-THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>,
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-TSchema = any
+  T = NonNullable<unknown>,
+  TQueryHelpers = unknown,
+  TMethods = unknown,
+  TVirtuals = unknown,
+  THydratedDocumentType = HydratedDocument<T, TVirtuals & TMethods, TQueryHelpers>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TSchema = any
 >(model: Model<T, TQueryHelpers, TMethods, TVirtuals, THydratedDocumentType, TSchema>) {
   return function start<TModel = T>(): Aggregation<TModel> {
     let aggregate = <Aggregation>model.aggregate();
@@ -175,9 +176,9 @@ TSchema = any
         // add default 'cursor' and 'exec' if needed
         if (['catch', 'finally', 'then'].indexOf(verb) > -1) {
           const promise = execWithDefaultCursor(aggregate);
-          if(verb == 'then') {
+          if (verb == 'then') {
             promise.then(...args);
-          } else if(verb == 'finally') {
+          } else if (verb == 'finally') {
             promise.finally(...args);
           } else {
             promise.catch(...args);

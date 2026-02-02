@@ -1,5 +1,6 @@
 .github
 .vscode
+.prettierignore
 typedocIncludes
 docs
 dev
@@ -10,7 +11,8 @@ types
 todo
 typedoc.json
 kaukau-*.js
-
+lint-staged.config.mts
+prettier.config.mts
 
 # Logs
 logs

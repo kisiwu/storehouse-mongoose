@@ -1,0 +1,11 @@
+build
+lib
+dist
+.husky
+coverage
+src/aggregation.ts
+
+# to ignore package.json, pnpm-lock.yaml, ...
+/*.json
+/*.yaml
+/*.yml
