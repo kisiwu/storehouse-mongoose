@@ -132,23 +132,23 @@ export class MongooseManager implements IManager {
         this.#modelSettings[im.name] = im;
       });
 
-    this._createConnection();
+    this.#createConnection();
   }
 
-  private _createConnection(): Connection {
+  #createConnection(): Connection {
     Log.info('Create connection [%s]', this.name);
     this.closeConnection();
     this.#connection = mongoose.createConnection(this.#uri, this.#connectOptions);
-    this._registerConnectionEvents(this.#connection);
+    this.#registerConnectionEvents(this.#connection);
 
     for (const key in this.#modelSettings) {
-      this._addModel(this.#modelSettings[key]);
+      this.#addModel(this.#modelSettings[key]);
     }
 
     return this.#connection;
   }
 
-  private _registerConnectionEvents(connection: Connection) {
+  #registerConnectionEvents(connection: Connection) {
     connection.on('connecting', () => {
       Log.warn('Connecting [%s] ...', this.name);
     });
@@ -181,7 +181,7 @@ export class MongooseManager implements IManager {
     });
   }
 
-  private _addModel(m: ModelSettings) {
+  #addModel(m: ModelSettings) {
     const connection = this.getConnection();
     connection.model(m.name, m.schema, m.collection);
   }
@@ -193,7 +193,7 @@ export class MongooseManager implements IManager {
   getConnection(): Connection {
     let r: Connection;
     if (!this.#connection || (this.#connection.readyState != 1 && this.#connection.readyState != 2)) {
-      r = this._createConnection();
+      r = this.#createConnection();
     } else {
       r = this.#connection;
     }
