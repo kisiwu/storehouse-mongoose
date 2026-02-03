@@ -1,5 +1,5 @@
 //import { Debug } from '@novice1/logger';
-import Storehouse from '@storehouse/core';
+import { Storehouse } from '@storehouse/core';
 import { MongooseManager, getModel, getManager, getConnection } from '../../src/index';
 import { expect } from 'chai';
 

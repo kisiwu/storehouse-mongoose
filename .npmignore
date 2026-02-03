@@ -11,6 +11,7 @@ types
 todo
 typedoc.json
 kaukau-*.js
+kaukau-*.mjs
 lint-staged.config.mts
 prettier.config.mts
 

@@ -1,4 +1,6 @@
-module.exports = {
+import { defineConfig } from 'kaukau/config'
+
+export default defineConfig({
   enableLogs: true,
   exitOnFail: true,
   files: 'test/lib',
@@ -21,9 +23,9 @@ module.exports = {
       hostname: process.env.TEST_DB_HOSTNAME || 'localhost',
       port: typeof process.env.TEST_DB_PORT === 'undefined' ? 27017 : process.env.TEST_DB_PORT,
       database: process.env.TEST_DB_NAME || 'ci',
-			username: process.env.TEST_DB_USERNAME || '',
+      username: process.env.TEST_DB_USERNAME || '',
       password: process.env.TEST_DB_PASSWORD || '',
       options: process.env.TEST_DB_OPTIONS || '',
     }
   },
-};
+});

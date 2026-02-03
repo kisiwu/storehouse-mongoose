@@ -11,8 +11,8 @@
     "doc": "typedoc",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
-    "test": "kaukau --require ts-node/register --config kaukau-src.js",
-    "testlib": "kaukau --config kaukau-lib.js",
+    "test": "kaukau --require ts-node/register --config kaukau-src.mjs",
+    "testlib": "kaukau --config kaukau-lib.mjs",
     "format": "cross-env NODE_OPTIONS=--experimental-strip-types prettier --write ./src",
     "format:check": "cross-env NODE_OPTIONS=--experimental-strip-types prettier --check ./src",
     "format:staged": "cross-env NODE_OPTIONS=--experimental-strip-types lint-staged"
@@ -48,6 +48,7 @@
     "@types/node": "^25.2.0",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
+    "chai": "^6.2.2",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",

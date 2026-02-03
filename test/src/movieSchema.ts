@@ -32,6 +32,7 @@ export interface MovieQueryHelpers {
 }
 
 export interface MovieVirtuals {
+  id: string
   /**
    * virtual getter
    */
@@ -54,46 +55,46 @@ const movieSchema = new Schema<MovieJson, MovieModel, MovieJsonMethods, MovieQue
     default: 0
   },
 },
-{
-  /*
-  virtuals: {
-    displayName: {
-      get: function() {
+  {
+    /*
+    virtuals: {
+      displayName: {
+        get: function() {
+          return `${this.title} (${this.rate} stars)`
+        }
+      }
+    },
+    */
+    /*
+    methods: {
+      fullName() {
         return `${this.title} (${this.rate} stars)`
+      },
+    },
+    */
+    /*
+    query: {
+      byTitle(title: string) {
+        return this.find({ title: title });
+      }
+    },
+    */
+    statics: {
+      myStaticMethod() {
+        return 42;
       }
     }
-  },
-  */
-  /*
-  methods: {
-    fullName() {
-      return `${this.title} (${this.rate} stars)`
-    },
-  },
-  */
-  /*
-  query: {
-    byTitle(title: string) {
-      return this.find({ title: title });
-    }
-  },
-  */
-  statics: {
-    myStaticMethod() {
-      return 42;
-    }
-  }
-})
+  })
 
 movieSchema.virtual('displayName').get(function () {
   return `${this.title} (${this.rate} stars)`
 });
 
-movieSchema.methods.fullName = function() {
+movieSchema.methods.fullName = function () {
   return `${this.title} (${this.rate} stars)`
 }
 
-movieSchema.query.byTitle = function(
+movieSchema.query.byTitle = function (
   this: QueryWithHelpers<unknown, HydratedDocument<MovieJson>, MovieQueryHelpers>,
   title: string
 ) {
@@ -102,16 +103,16 @@ movieSchema.query.byTitle = function(
 
 
 export const MovieSettings: ModelSettings<MovieJson, MovieModel> = {
-    name: 'movies',
-    schema: movieSchema,
-    collection: 'movies'
+  name: 'movies',
+  schema: movieSchema,
+  collection: 'movies'
 };
 
 export interface IRoom {
   name: string
 }
 
-export interface RoomModel extends Model<IRoom> {}
+export type RoomModel = Model<IRoom>;
 
 export const RoomSettings: ModelSettings<IRoom> = {
   name: 'rooms',
