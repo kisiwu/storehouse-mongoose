@@ -14,6 +14,7 @@ kaukau-*.js
 kaukau-*.mjs
 lint-staged.config.mts
 prettier.config.mts
+CHANGELOG.md
 
 # Logs
 logs
