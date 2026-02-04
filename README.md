@@ -49,7 +49,7 @@ export const movieSettings: ModelSettings<IMovie, MovieModel> = {
 
 index.ts
 ```ts
-import Storehouse from '@storehouse/core';
+import { Storehouse } from '@storehouse/core';
 import { MongooseManager, CustomModel } from '@storehouse/mongoose';
 import { movieSettings } from './movies';
 
@@ -80,7 +80,7 @@ Storehouse.add({
 Once the manager registered, you can access it or directly get the connection or models.
 
 ```ts
-import Storehouse from '@storehouse/core';
+import { Storehouse } from '@storehouse/core';
 import { MongooseManager } from '@storehouse/mongoose';
 import { Connection } from 'mongoose';
 import { IMovie, MovieModel } from './movies';
@@ -114,7 +114,7 @@ There are methods to help you retrieve the connection, manager and models so you
 Those methods throw an error when they fail.
 
 ```ts
-import Storehouse from '@storehouse/core';
+import { Storehouse } from '@storehouse/core';
 import { getConnection, getManager, getModel } from '@storehouse/mongoose';
 import { IMovie, MovieModel } from './movies';
 
@@ -136,7 +136,7 @@ console.log('nb movies', await Movies.countDocuments());
 A method from `@storehouse/mongoose`'s model.
 
 ```ts
-import Storehouse from '@storehouse/core';
+import { Storehouse } from '@storehouse/core';
 import { getModel } from '@storehouse/mongoose';
 import { IMovie, MovieModel, MovieWithId } from './movies';
 
