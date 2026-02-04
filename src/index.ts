@@ -106,6 +106,20 @@ export function getConnection<T extends Connection = Connection>(registry: Regis
   return conn;
 }
 
+export interface MongooseHealthCheckResult extends HealthCheckResult {
+  details: {
+    name: string;
+    databaseName?: string;
+    host?: string;
+    port?: number;
+    models?: string[];
+    modelCount?: number;
+    readyState?: string | number;
+    latency?: string;
+    [key: string]: unknown;
+  };
+}
+
 export class MongooseManager implements IManager {
   static readonly type = '@storehouse/mongoose';
 
@@ -237,7 +251,7 @@ export class MongooseManager implements IManager {
     return this.#connection?.readyState === 1; // 1 = connected
   }
 
-  async healthCheck(): Promise<HealthCheckResult> {
+  async healthCheck(): Promise<MongooseHealthCheckResult> {
     const start = Date.now();
     const timestamp = start;
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [4.0.0] - 2026-02-04
 
 ### Added
 
@@ -25,4 +25,5 @@
 - Consistent use of private fields with `#` syntax
 
 
-[Unreleased]: https://github.com/kisiwu/storehouse-core/compare/HEAD
+[Unreleased]: https://github.com/kisiwu/storehouse-mongoose/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/kisiwu/storehouse-mongoose/compare/v4.0.0

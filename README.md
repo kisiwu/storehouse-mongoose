@@ -144,6 +144,55 @@ const Movies = getModel<IMovie>(Storehouse, 'local', 'movies');
 const movies = await Movies.aggregation<MovieWithId>().match({});
 ```
 
+### Health Check Methods
+
+#### isConnected()
+
+Check if a manager's connection is currently active:
+
+```ts
+const connected = await manager.isConnected();
+if (connected) {
+  console.log('Connection is active');
+}
+```
+
+#### healthCheck()
+
+Perform a comprehensive health check on a manager's connection:
+
+```ts
+const health = await manager.healthCheck();
+
+if (health?.healthy) {
+  console.log(`✓ Healthy - ${health.message}`);
+  console.log(`Latency: ${health.latency}ms`);
+  console.log('Details:', health.details);
+} else {
+  console.error(`✗ Unhealthy - ${health?.message}`);
+}
+```
+
+### Health Check Result Structure
+
+The health check result extends Storehouse's `HealthCheckResult` interface:
+
+```ts
+export interface MongooseHealthCheckResult extends HealthCheckResult {
+  details: {
+    name: string;
+    databaseName?: string;
+    host?: string;
+    port?: number;
+    models?: string[];
+    modelCount?: number;
+    readyState?: string | number;
+    latency?: string;
+    [key: string]: unknown;
+  };
+}
+```
+
 ## References
 
 - [Documentation](https://kisiwu.github.io/storehouse/mongoose/latest/)
